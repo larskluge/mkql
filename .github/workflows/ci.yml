@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build
-        run: xcodebuild -project mkql.xcodeproj -scheme mkql -destination 'platform=macOS' build
+        run: xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' build
 
       - name: Test
-        run: xcodebuild -project mkql.xcodeproj -scheme mkql -destination 'platform=macOS' test
+        run: xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' test

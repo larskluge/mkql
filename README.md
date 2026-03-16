@@ -1,4 +1,4 @@
-# mkql
+# mdql
 
 A macOS Quick Look extension for previewing Markdown files. Press Space on any `.md` file in Finder to see a rendered preview.
 
@@ -11,7 +11,7 @@ A macOS Quick Look extension for previewing Markdown files. Press Space on any `
 
 ## Install
 
-1. Open `mkql.xcodeproj` in Xcode
+1. Open `mdql.xcodeproj` in Xcode
 2. Build & Run (Cmd+R)
 3. The extension registers automatically — press Space on any `.md` in Finder
 
@@ -24,13 +24,13 @@ qlmanage -r
 ## Build
 
 ```bash
-xcodebuild -project mkql.xcodeproj -scheme mkql -destination 'platform=macOS' build
+xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' build
 ```
 
 ## Test
 
 ```bash
-xcodebuild -project mkql.xcodeproj -scheme mkql -destination 'platform=macOS' test
+xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' test
 ```
 
 ## Requirements

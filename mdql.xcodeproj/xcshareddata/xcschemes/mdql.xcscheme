@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B10000010000000000000001"
-               BuildableName = "mkql.app"
-               BlueprintName = "mkql"
-               ReferencedContainer = "container:mkql.xcodeproj">
+               BuildableName = "mdql.app"
+               BlueprintName = "mdql"
+               ReferencedContainer = "container:mdql.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,9 +34,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B10000030000000000000003"
-               BuildableName = "mkqlTests.xctest"
-               BlueprintName = "mkqlTests"
-               ReferencedContainer = "container:mkql.xcodeproj">
+               BuildableName = "mdqlTests.xctest"
+               BlueprintName = "mdqlTests"
+               ReferencedContainer = "container:mdql.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -56,9 +56,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B10000010000000000000001"
-            BuildableName = "mkql.app"
-            BlueprintName = "mkql"
-            ReferencedContainer = "container:mkql.xcodeproj">
+            BuildableName = "mdql.app"
+            BlueprintName = "mdql"
+            ReferencedContainer = "container:mdql.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>

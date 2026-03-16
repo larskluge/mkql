@@ -12,7 +12,7 @@
 		A10000030000000000000003 /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000030000000000000003 /* MarkdownRenderer.swift */; };
 		A10000040000000000000004 /* preview.css in Resources */ = {isa = PBXBuildFile; fileRef = A20000040000000000000004 /* preview.css */; };
 		A10000050000000000000005 /* MarkdownRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000050000000000000005 /* MarkdownRendererTests.swift */; };
-		A10000060000000000000006 /* mkqlPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A30000020000000000000002 /* mkqlPreview.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A10000060000000000000006 /* mdqlPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A30000020000000000000002 /* mdqlPreview.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A10000070000000000000007 /* basic.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000070000000000000007 /* basic.md */; };
 		A10000080000000000000008 /* gfm.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000080000000000000008 /* gfm.md */; };
 		A10000090000000000000009 /* empty.md in Resources */ = {isa = PBXBuildFile; fileRef = A20000090000000000000009 /* empty.md */; };
@@ -30,14 +30,14 @@
 			containerPortal = A60000010000000000000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = B10000010000000000000001;
-			remoteInfo = mkql;
+			remoteInfo = mdql;
 		};
 		A40000020000000000000002 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A60000010000000000000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = B10000020000000000000002;
-			remoteInfo = mkqlPreview;
+			remoteInfo = mdqlPreview;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -48,7 +48,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A10000060000000000000006 /* mkqlPreview.appex in Embed Foundation Extensions */,
+				A10000060000000000000006 /* mdqlPreview.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -67,11 +67,11 @@
 		A20000090000000000000009 /* empty.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = empty.md; sourceTree = "<group>"; };
 		A2000000000000000000000A /* special-chars.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "special-chars.md"; sourceTree = "<group>"; };
 		A2000000000000000000000B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A2000000000000000000000C /* mkql.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mkql.entitlements; sourceTree = "<group>"; };
-		A2000000000000000000000D /* mkqlPreview.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mkqlPreview.entitlements; sourceTree = "<group>"; };
-		A30000010000000000000001 /* mkql.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mkql.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A30000020000000000000002 /* mkqlPreview.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = mkqlPreview.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		A30000030000000000000003 /* mkqlTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mkqlTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000000000000000000000C /* mdql.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mdql.entitlements; sourceTree = "<group>"; };
+		A2000000000000000000000D /* mdqlPreview.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mdqlPreview.entitlements; sourceTree = "<group>"; };
+		A30000010000000000000001 /* mdql.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mdql.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A30000020000000000000002 /* mdqlPreview.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = mdqlPreview.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A30000030000000000000003 /* mdqlTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mdqlTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,35 +101,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A90000010000000000000001 /* mkql */ = {
+		A90000010000000000000001 /* mdql */ = {
 			isa = PBXGroup;
 			children = (
 				A20000010000000000000001 /* AppDelegate.swift */,
 				A2000000000000000000000B /* Info.plist */,
-				A2000000000000000000000C /* mkql.entitlements */,
+				A2000000000000000000000C /* mdql.entitlements */,
 			);
-			path = mkql;
+			path = mdql;
 			sourceTree = "<group>";
 		};
-		A90000020000000000000002 /* mkqlPreview */ = {
+		A90000020000000000000002 /* mdqlPreview */ = {
 			isa = PBXGroup;
 			children = (
 				A20000020000000000000002 /* PreviewController.swift */,
 				A20000030000000000000003 /* MarkdownRenderer.swift */,
 				A90000050000000000000005 /* Resources */,
 				A20000060000000000000006 /* Info.plist */,
-				A2000000000000000000000D /* mkqlPreview.entitlements */,
+				A2000000000000000000000D /* mdqlPreview.entitlements */,
 			);
-			path = mkqlPreview;
+			path = mdqlPreview;
 			sourceTree = "<group>";
 		};
-		A90000030000000000000003 /* mkqlTests */ = {
+		A90000030000000000000003 /* mdqlTests */ = {
 			isa = PBXGroup;
 			children = (
 				A20000050000000000000005 /* MarkdownRendererTests.swift */,
 				A90000040000000000000004 /* Fixtures */,
 			);
-			path = mkqlTests;
+			path = mdqlTests;
 			sourceTree = "<group>";
 		};
 		A90000040000000000000004 /* Fixtures */ = {
@@ -154,9 +154,9 @@
 		A90000060000000000000006 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A30000010000000000000001 /* mkql.app */,
-				A30000020000000000000002 /* mkqlPreview.appex */,
-				A30000030000000000000003 /* mkqlTests.xctest */,
+				A30000010000000000000001 /* mdql.app */,
+				A30000020000000000000002 /* mdqlPreview.appex */,
+				A30000030000000000000003 /* mdqlTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -164,9 +164,9 @@
 		A90000000000000000000000 = {
 			isa = PBXGroup;
 			children = (
-				A90000010000000000000001 /* mkql */,
-				A90000020000000000000002 /* mkqlPreview */,
-				A90000030000000000000003 /* mkqlTests */,
+				A90000010000000000000001 /* mdql */,
+				A90000020000000000000002 /* mdqlPreview */,
+				A90000030000000000000003 /* mdqlTests */,
 				A90000060000000000000006 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -174,9 +174,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B10000010000000000000001 /* mkql */ = {
+		B10000010000000000000001 /* mdql */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B30000010000000000000001 /* Build configuration list for PBXNativeTarget "mkql" */;
+			buildConfigurationList = B30000010000000000000001 /* Build configuration list for PBXNativeTarget "mdql" */;
 			buildPhases = (
 				B20000010000000000000001 /* Sources */,
 				A80000010000000000000001 /* Frameworks */,
@@ -188,16 +188,16 @@
 			dependencies = (
 				B40000010000000000000001 /* PBXTargetDependency */,
 			);
-			name = mkql;
+			name = mdql;
 			packageProductDependencies = (
 			);
-			productName = mkql;
-			productReference = A30000010000000000000001 /* mkql.app */;
+			productName = mdql;
+			productReference = A30000010000000000000001 /* mdql.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B10000020000000000000002 /* mkqlPreview */ = {
+		B10000020000000000000002 /* mdqlPreview */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B30000020000000000000002 /* Build configuration list for PBXNativeTarget "mkqlPreview" */;
+			buildConfigurationList = B30000020000000000000002 /* Build configuration list for PBXNativeTarget "mdqlPreview" */;
 			buildPhases = (
 				B20000020000000000000002 /* Sources */,
 				A80000020000000000000002 /* Frameworks */,
@@ -207,17 +207,17 @@
 			);
 			dependencies = (
 			);
-			name = mkqlPreview;
+			name = mdqlPreview;
 			packageProductDependencies = (
 				A5000001000000000000000B /* Markdown */,
 			);
-			productName = mkqlPreview;
-			productReference = A30000020000000000000002 /* mkqlPreview.appex */;
+			productName = mdqlPreview;
+			productReference = A30000020000000000000002 /* mdqlPreview.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		B10000030000000000000003 /* mkqlTests */ = {
+		B10000030000000000000003 /* mdqlTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B30000030000000000000003 /* Build configuration list for PBXNativeTarget "mkqlTests" */;
+			buildConfigurationList = B30000030000000000000003 /* Build configuration list for PBXNativeTarget "mdqlTests" */;
 			buildPhases = (
 				B20000030000000000000003 /* Sources */,
 				A80000030000000000000003 /* Frameworks */,
@@ -228,12 +228,12 @@
 			dependencies = (
 				B40000020000000000000002 /* PBXTargetDependency */,
 			);
-			name = mkqlTests;
+			name = mdqlTests;
 			packageProductDependencies = (
 				A5000002000000000000000B /* Markdown */,
 			);
-			productName = mkqlTests;
-			productReference = A30000030000000000000003 /* mkqlTests.xctest */;
+			productName = mdqlTests;
+			productReference = A30000030000000000000003 /* mdqlTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -258,7 +258,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B30000040000000000000004 /* Build configuration list for PBXProject "mkql" */;
+			buildConfigurationList = B30000040000000000000004 /* Build configuration list for PBXProject "mdql" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -274,9 +274,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B10000010000000000000001 /* mkql */,
-				B10000020000000000000002 /* mkqlPreview */,
-				B10000030000000000000003 /* mkqlTests */,
+				B10000010000000000000001 /* mdql */,
+				B10000020000000000000002 /* mdqlPreview */,
+				B10000030000000000000003 /* mdqlTests */,
 			);
 		};
 /* End PBXProject section */
@@ -344,12 +344,12 @@
 /* Begin PBXTargetDependency section */
 		B40000010000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B10000020000000000000002 /* mkqlPreview */;
+			target = B10000020000000000000002 /* mdqlPreview */;
 			targetProxy = A40000020000000000000002 /* PBXContainerItemProxy */;
 		};
 		B40000020000000000000002 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B10000010000000000000001 /* mkql */;
+			target = B10000010000000000000001 /* mdql */;
 			targetProxy = A40000010000000000000001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -470,15 +470,15 @@
 		C20000010000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = mkql/mkql.entitlements;
+				CODE_SIGN_ENTITLEMENTS = mdql/mdql.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = mkql/Info.plist;
+				INFOPLIST_FILE = mdql/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mkql.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mdql.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -487,15 +487,15 @@
 		C20000020000000000000002 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = mkql/mkql.entitlements;
+				CODE_SIGN_ENTITLEMENTS = mdql/mdql.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = mkql/Info.plist;
+				INFOPLIST_FILE = mdql/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mkql.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mdql.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -504,15 +504,15 @@
 		C30000010000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = mkqlPreview/mkqlPreview.entitlements;
+				CODE_SIGN_ENTITLEMENTS = mdqlPreview/mdqlPreview.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = mkqlPreview/Info.plist;
+				INFOPLIST_FILE = mdqlPreview/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mkql.app.preview;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mdql.app.preview;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -522,15 +522,15 @@
 		C30000020000000000000002 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = mkqlPreview/mkqlPreview.entitlements;
+				CODE_SIGN_ENTITLEMENTS = mdqlPreview/mdqlPreview.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = mkqlPreview/Info.plist;
+				INFOPLIST_FILE = mdqlPreview/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mkql.app.preview;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mdql.app.preview;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -549,7 +549,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mkql.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mdql.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				/* TEST_HOST removed - standalone test */
@@ -568,7 +568,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mkql.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mdql.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				/* TEST_HOST removed - standalone test */
@@ -578,7 +578,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B30000010000000000000001 /* Build configuration list for PBXNativeTarget "mkql" */ = {
+		B30000010000000000000001 /* Build configuration list for PBXNativeTarget "mdql" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C20000010000000000000001 /* Debug */,
@@ -587,7 +587,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B30000020000000000000002 /* Build configuration list for PBXNativeTarget "mkqlPreview" */ = {
+		B30000020000000000000002 /* Build configuration list for PBXNativeTarget "mdqlPreview" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C30000010000000000000001 /* Debug */,
@@ -596,7 +596,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B30000030000000000000003 /* Build configuration list for PBXNativeTarget "mkqlTests" */ = {
+		B30000030000000000000003 /* Build configuration list for PBXNativeTarget "mdqlTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C40000010000000000000001 /* Debug */,
@@ -605,7 +605,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B30000040000000000000004 /* Build configuration list for PBXProject "mkql" */ = {
+		B30000040000000000000004 /* Build configuration list for PBXProject "mdql" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C10000010000000000000001 /* Debug */,
