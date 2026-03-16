@@ -15,7 +15,7 @@ class PreviewController: NSViewController, QLPreviewingController {
 
         let reply = QLPreviewReply(
             dataOfContentType: .html,
-            contentSize: CGSize(width: 800, height: 600)
+            contentSize: CGSize(width: 1060, height: 900)
         ) { _ in
             return data
         }
