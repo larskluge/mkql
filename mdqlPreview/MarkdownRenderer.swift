@@ -1,6 +1,8 @@
 import Foundation
 import Markdown
 
+private class BundleAnchor {}
+
 public struct MarkdownRenderer {
 
     public static func render(fileAt url: URL) throws -> String {
@@ -13,6 +15,11 @@ public struct MarkdownRenderer {
         let document = Document(parsing: markdown, options: [.parseBlockDirectives])
         let html = HTMLFormatter.format(document)
         return wrapInHTMLDocument(body: html, title: title)
+    }
+
+    public static func renderBody(markdown: String) -> String {
+        let document = Document(parsing: markdown, options: [.parseBlockDirectives])
+        return HTMLFormatter.format(document)
     }
 
     private static func wrapInHTMLDocument(body: String, title: String) -> String {
@@ -39,7 +46,7 @@ public struct MarkdownRenderer {
     }
 
     private static func loadCSS() -> String {
-        guard let url = Bundle(for: PreviewController.self).url(forResource: "preview", withExtension: "css"),
+        guard let url = Bundle(for: BundleAnchor.self).url(forResource: "preview", withExtension: "css"),
               let css = try? String(contentsOf: url, encoding: .utf8) else {
             return ""
         }
