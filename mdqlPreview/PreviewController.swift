@@ -1,36 +1,26 @@
 import Cocoa
 import QuickLookUI
 import Quartz
+import WebKit
 
 class PreviewController: NSViewController, QLPreviewingController {
-    private var scrollView: NSScrollView!
-    private var textView: NSTextView!
+    private var webView: WebView!
     private var fileWatcher: FileWatcher?
     private var fileURL: URL?
 
     override func loadView() {
-        scrollView = NSScrollView(frame: NSRect(x: 0, y: 0, width: 1060, height: 900))
-        scrollView.autoresizingMask = [.width, .height]
-        scrollView.hasVerticalScroller = true
-        scrollView.hasHorizontalScroller = false
-
-        textView = NSTextView(frame: scrollView.contentView.bounds)
-        textView.autoresizingMask = [.width]
-        textView.isEditable = false
-        textView.isSelectable = true
-        textView.textContainerInset = NSSize(width: 20, height: 20)
-        textView.textContainer?.widthTracksTextView = true
-        textView.drawsBackground = false
-
-        scrollView.documentView = textView
-        self.view = scrollView
+        webView = WebView(frame: NSRect(x: 0, y: 0, width: 1060, height: 900))
+        webView.autoresizingMask = [.width, .height]
+        webView.drawsBackground = false
+        self.view = webView
     }
 
     func preparePreviewOfFile(at url: URL, completionHandler handler: @escaping (Error?) -> Void) {
         fileURL = url
 
         do {
-            try renderFile(url)
+            let html = try MarkdownRenderer.render(fileAt: url)
+            webView.mainFrame.loadHTMLString(html, baseURL: nil)
         } catch {
             handler(error)
             return
@@ -45,24 +35,14 @@ class PreviewController: NSViewController, QLPreviewingController {
         fileWatcher?.start()
     }
 
-    private var isDarkMode: Bool {
-        if #available(macOS 10.14, *) {
-            return NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-        }
-        return false
-    }
-
-    private func renderFile(_ url: URL) throws {
-        let markdown = try String(contentsOf: url, encoding: .utf8)
-        let title = url.deletingPathExtension().lastPathComponent
-        let html = MarkdownRenderer.renderForNativeText(markdown: markdown, title: title, darkMode: isDarkMode)
-        guard let data = html.data(using: .utf8),
-              let attrStr = NSAttributedString(html: data, documentAttributes: nil) else { return }
-        textView.textStorage?.setAttributedString(attrStr)
-    }
-
     private func reloadContent() {
-        guard let url = fileURL else { return }
-        try? renderFile(url)
+        guard let url = fileURL,
+              let markdown = try? String(contentsOf: url, encoding: .utf8) else { return }
+
+        let bodyHTML = MarkdownRenderer.renderBody(markdown: markdown)
+        let base64 = Data(bodyHTML.utf8).base64EncodedString()
+        webView.stringByEvaluatingJavaScript(from:
+            "document.querySelector('.markdown-body').innerHTML = new TextDecoder().decode(Uint8Array.from(atob('\(base64)'), c => c.charCodeAt(0)))"
+        )
     }
 }
