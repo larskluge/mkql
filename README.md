@@ -130,6 +130,10 @@ Bundle(for: BundleAnchor.self).url(forResource: "preview", withExtension: "css")
 
 `BundleAnchor` always resolves to the bundle that contains `MarkdownRenderer.swift`, regardless of which target is running.
 
+## Todo
+
+- **Incremental DOM updates** — Currently, every file change replaces the entire `.markdown-body` innerHTML. This works but is wasteful: a single-character edit re-renders and re-injects the full document HTML. Instead, diff the old and new rendered HTML and patch only the changed DOM nodes. This would reduce flicker on large documents, preserve any in-page state (e.g., text selection), and improve performance for files with hundreds of sections.
+
 ## Requirements
 
 - macOS 12.0+
