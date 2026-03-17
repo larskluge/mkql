@@ -8,11 +8,14 @@ class PreviewController: NSViewController, QLPreviewingController {
     private var fileWatcher: FileWatcher?
     private var fileURL: URL?
 
+    static let previewSize = NSSize(width: 1060, height: 900)
+
     override func loadView() {
-        webView = WebView(frame: NSRect(x: 0, y: 0, width: 1060, height: 900))
+        webView = WebView(frame: NSRect(origin: .zero, size: Self.previewSize))
         webView.autoresizingMask = [.width, .height]
         webView.drawsBackground = false
         self.view = webView
+        preferredContentSize = Self.previewSize
     }
 
     func preparePreviewOfFile(at url: URL, completionHandler handler: @escaping (Error?) -> Void) {

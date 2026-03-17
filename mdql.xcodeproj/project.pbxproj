@@ -27,6 +27,7 @@
 		D1000000000000000000000B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D20000050000000000000005 /* WebKit.framework */; };
 		D1000000000000000000000C /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000010000000000000001 /* FileWatcher.swift */; };
 		D1000000000000000000000D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D20000050000000000000005 /* WebKit.framework */; };
+		E10000020000000000000002 /* PreviewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000020000000000000002 /* PreviewControllerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +98,7 @@
 		D20000010000000000000001 /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
 		D20000030000000000000003 /* FileWatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcherTests.swift; sourceTree = "<group>"; };
 		D20000050000000000000005 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		E20000020000000000000002 /* PreviewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewControllerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +158,7 @@
 			children = (
 				A20000050000000000000005 /* MarkdownRendererTests.swift */,
 				D20000030000000000000003 /* FileWatcherTests.swift */,
+				E20000020000000000000002 /* PreviewControllerTests.swift */,
 				A90000040000000000000004 /* Fixtures */,
 			);
 			path = mdqlTests;
@@ -378,6 +381,7 @@
 				A1000000000000000000000E /* PreviewController.swift in Sources */,
 				D10000070000000000000007 /* FileWatcherTests.swift in Sources */,
 				D10000090000000000000009 /* FileWatcher.swift in Sources */,
+				E10000020000000000000002 /* PreviewControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
