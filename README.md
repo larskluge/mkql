@@ -16,17 +16,11 @@ A macOS Quick Look extension for previewing Markdown files. Press Space on any `
 
 ## Install
 
-1. Open `mdql.xcodeproj` in Xcode
-2. Build & Run (Cmd+R)
-3. Press Space on any `.md` file in Finder
-
-The build automatically installs the app to `~/Applications/`, registers the QuickLook extension, and cleans up any duplicate registrations. No manual steps needed.
-
-## Build
-
 ```bash
-xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' build
+make install
 ```
+
+This builds a Release binary, copies it to `~/Applications/`, cleans up all stale DerivedData and duplicate registrations, registers the QuickLook extension, and verifies everything is correct. Press Space on any `.md` file in Finder to preview.
 
 ## Test
 
@@ -113,10 +107,7 @@ Finder's QuickLook **only reliably discovers extensions** from apps installed in
 - Multiple DerivedData copies create duplicate extension registrations
 - Duplicate registrations cause `key cannot be nil` crashes in `ExtensionFoundation`
 
-This is handled automatically by a post-build script and AppDelegate startup check:
-
-- **Post-build script** — Copies the app to `~/Applications/`, unregisters the DerivedData copy, registers from `~/Applications/`, resets QuickLook, and verifies no duplicate registrations exist.
-- **AppDelegate** — On every launch, queries `pluginkit` for duplicate registrations and cleans up any stale DerivedData entries.
+This is handled by `scripts/install.sh`, the single source of truth for installation and registration. It copies the app to `~/Applications/`, unregisters all stale DerivedData and sandbox container entries from `lsregister`, registers the canonical copy, and launches the app to finalize `pluginkit` registration. Both the Xcode post-build phase and `make install` call this script. The AppDelegate itself is a no-op — the app sandbox prevents it from running `lsregister` or `qlmanage`.
 
 ### Cross-target bundle resolution
 

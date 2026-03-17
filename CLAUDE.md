@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Test Commands
 
 ```bash
-# Build all targets (automatically installs to ~/Applications and registers the QL extension)
-xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' build
+# Build, install to ~/Applications, register extension, and verify
+make install
 
 # Run all tests
 xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' test
@@ -19,13 +19,13 @@ xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' \
 qlmanage -p /path/to/file.md
 ```
 
-The build includes a post-build script that automatically copies the app to `~/Applications/`, registers the QuickLook extension from the correct path, and cleans up any duplicate registrations. No manual install step needed.
+`make install` is the primary build command. It builds a Release binary, calls `scripts/install.sh` to copy to `~/Applications/` and clean up stale registrations, then verifies pluginkit and lsregister have exactly one entry. The Xcode post-build phase also calls `scripts/install.sh` (with `SKIP_LAUNCH=1` since apps can't be launched during builds).
 
 ## Architecture
 
 macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 
-- **mdql** — Host app. On launch, verifies QuickLook extension registration and cleans up duplicates. Post-build script auto-installs to `~/Applications/`.
+- **mdql** — Host app. Minimal AppDelegate (registration is handled by `scripts/install.sh` since the app is sandboxed). Post-build script calls `install.sh` to copy to `~/Applications/`.
 - **mdqlPreview** — QuickLook Preview Extension (.appex). View-based preview (`QLIsDataBasedPreview=false`) using legacy `WebView` + FileWatcher for live updates in Finder. Registered for `net.daringfireball.markdown` UTI.
 - **mdqlTests** — Unit tests. Compiles mdqlPreview and mdql sources directly (not hosted tests) since app extensions can't be imported as modules by test bundles.
 
@@ -35,6 +35,8 @@ macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 
 ## Key Files
 
+- `scripts/install.sh` — Single source of truth for install + registration. Copies to ~/Applications, cleans stale lsregister/pluginkit entries, registers extension, launches app for pluginkit finalization.
+- `Makefile` — `make install` builds Release, calls `install.sh`, verifies no duplicates. `make clean` cleans build artifacts.
 - `mdqlPreview/MarkdownRenderer.swift` — Core rendering. `render()` for full HTML with CSS, `renderBody()` for body-only HTML (used by innerHTML updates). Uses `BundleAnchor` class for cross-target bundle resolution.
 - `mdqlPreview/Resources/preview.css` — Inkpad-derived design tokens. Uses CSS custom properties with `@media (prefers-color-scheme: dark)` for automatic dark mode. Key tokens: text `#3f3b3d`, bg `#f9f9f9`, links `#4183c4`.
 - `mdqlPreview/PreviewController.swift` — View-based QLPreviewingController with legacy WebView + FileWatcher for live updates.
@@ -56,6 +58,8 @@ macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 - **`@main` on NSApplicationDelegate doesn't wire up the delegate.** Must use an explicit `@main enum Main` that creates `NSApplication.shared`, sets the delegate, and calls `app.run()`.
 - **JavaScript `atob()` produces Latin-1, not UTF-8.** Multi-byte UTF-8 characters (em-dashes, etc.) get mangled. Fix: `new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)))`.
 - **`Bundle(for: PreviewController.self)` fails cross-target.** When MarkdownRenderer is compiled into multiple targets, the class reference resolves to the wrong bundle. Fix: private `BundleAnchor` class in the same file as the bundle lookup.
-- **Finder only discovers QL extensions from ~/Applications or /Applications.** DerivedData builds don't register reliably, causing "file icon only" preview. Multiple DerivedData copies cause duplicate registrations and crashes. Automated via post-build script and AppDelegate cleanup.
-- **Xcode's RegisterWithLaunchServices re-registers from DerivedData after build scripts run.** The AppDelegate must also verify registration on launch to ensure the canonical ~/Applications path wins. The post-build script alone is not sufficient.
+- **Finder only discovers QL extensions from ~/Applications or /Applications.** DerivedData builds don't register reliably, causing "file icon only" preview. Multiple DerivedData copies cause duplicate registrations and crashes. Automated via `scripts/install.sh`.
+- **Xcode's RegisterWithLaunchServices re-registers from DerivedData after build scripts run.** The post-build script alone is not sufficient — `make install` runs `install.sh` again after xcodebuild completes to clean up re-registered DerivedData entries.
+- **The app sandbox prevents AppDelegate from running lsregister/qlmanage.** All registration logic must live in `scripts/install.sh` (unsandboxed). The AppDelegate is a no-op.
+- **pluginkit only discovers extensions when the host app is launched.** `lsregister -f -R` alone is not enough — `install.sh` must `open` the app and then quit it to finalize registration.
 - **`codesign --force --deep` breaks extension identity.** When re-signing the host app after copying to ~/Applications, use `--sign -` without `--deep` to preserve the extension's original signature.
