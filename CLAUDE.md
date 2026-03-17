@@ -47,3 +47,4 @@ macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 - Deployment target: macOS 12.0
 - App sandbox enabled on both host app and extension; extension has read-only file access
 - CSS is loaded from the extension bundle at runtime via `Bundle(for: PreviewController.self)`
+- **Live reload is not feasible** in the QuickLook extension sandbox. Spike (2026-03-17) confirmed: NWListener blocked (port stays 0), WebView blocks XHR/fetch/EventSource/localStorage. View-based preview (`QLIsDataBasedPreview=false`) renders blank. QuickLook does not re-call `providePreview` on file changes. Would require a standalone app with its own WKWebView.
