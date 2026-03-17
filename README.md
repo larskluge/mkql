@@ -10,6 +10,11 @@ A macOS Quick Look extension for previewing Markdown files. Press Space on any `
 - **Inkpad-inspired styling** — clean typography with thoughtful spacing and color tokens
 - **Fast** — uses Apple's [swift-markdown](https://github.com/swiftlang/swift-markdown) (cmark-gfm) for native-speed parsing
 
+## Requirements
+
+- macOS 12.0+
+- Xcode 15.0+
+
 ## Todo
 
 - [ ] **Incremental DOM updates** — Currently, every file change replaces the entire `.markdown-body` innerHTML. This works but is wasteful: a single-character edit re-renders and re-injects the full document HTML. Instead, diff the old and new rendered HTML and patch only the changed DOM nodes. This would reduce flicker on large documents, preserve any in-page state (e.g., text selection), and improve performance for files with hundreds of sections. Changed elements should briefly highlight (e.g., a subtle flash or background pulse) so the user can instantly see what updated in the preview.
@@ -120,8 +125,3 @@ Bundle(for: BundleAnchor.self).url(forResource: "preview", withExtension: "css")
 ```
 
 `BundleAnchor` always resolves to the bundle that contains `MarkdownRenderer.swift`, regardless of which target is running.
-
-## Requirements
-
-- macOS 12.0+
-- Xcode 15.0+
