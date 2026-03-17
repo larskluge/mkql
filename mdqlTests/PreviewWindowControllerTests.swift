@@ -12,29 +12,41 @@ final class PreviewWindowControllerTests: XCTestCase {
     }
 
     func testLoadFile() {
-        let url = Bundle(for: type(of: self)).url(forResource: "basic", withExtension: "md", subdirectory: "Fixtures")
-            ?? URL(fileURLWithPath: #file)
-                .deletingLastPathComponent()
-                .appendingPathComponent("Fixtures")
-                .appendingPathComponent("basic.md")
-
         let controller = PreviewWindowController()
-        controller.loadFile(url)
-
+        controller.loadFile(fixtureURL("basic"))
         XCTAssertEqual(controller.window?.title, "basic.md")
-        XCTAssertEqual(controller.currentURL, url)
+        XCTAssertEqual(controller.currentURL, fixtureURL("basic"))
     }
 
     func testFileWatcherStarted() {
-        let url = Bundle(for: type(of: self)).url(forResource: "basic", withExtension: "md", subdirectory: "Fixtures")
+        let controller = PreviewWindowController()
+        controller.loadFile(fixtureURL("basic"))
+        XCTAssertTrue(controller.isWatching)
+    }
+
+    func testLoadSecondFileReplacesFirst() {
+        let controller = PreviewWindowController()
+        controller.loadFile(fixtureURL("basic"))
+        XCTAssertEqual(controller.window?.title, "basic.md")
+
+        controller.loadFile(fixtureURL("gfm"))
+        XCTAssertEqual(controller.window?.title, "gfm.md")
+        XCTAssertEqual(controller.currentURL, fixtureURL("gfm"))
+        XCTAssertTrue(controller.isWatching, "Should still be watching after switching files")
+    }
+
+    func testWindowIsResizable() {
+        let controller = PreviewWindowController()
+        XCTAssertTrue(controller.window!.styleMask.contains(.resizable))
+        XCTAssertTrue(controller.window!.styleMask.contains(.closable))
+        XCTAssertTrue(controller.window!.styleMask.contains(.miniaturizable))
+    }
+
+    private func fixtureURL(_ name: String) -> URL {
+        Bundle(for: type(of: self)).url(forResource: name, withExtension: "md", subdirectory: "Fixtures")
             ?? URL(fileURLWithPath: #file)
                 .deletingLastPathComponent()
                 .appendingPathComponent("Fixtures")
-                .appendingPathComponent("basic.md")
-
-        let controller = PreviewWindowController()
-        controller.loadFile(url)
-
-        XCTAssertTrue(controller.isWatching)
+                .appendingPathComponent("\(name).md")
     }
 }

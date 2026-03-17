@@ -121,4 +121,81 @@ final class FileWatcherTests: XCTestCase {
         watcher = nil
         // No crash = pass
     }
+
+    func testDoubleStart() {
+        let url = tempFile()
+        var callCount = 0
+        let expectation = self.expectation(description: "callback fires")
+
+        let watcher = FileWatcher(url: url) {
+            callCount += 1
+            if callCount == 1 { expectation.fulfill() }
+        }
+        watcher.start()
+        watcher.start() // Should be no-op
+
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
+            try! "# Updated".write(to: url, atomically: false, encoding: .utf8)
+        }
+
+        waitForExpectations(timeout: 2)
+        let settle = self.expectation(description: "settle")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { settle.fulfill() }
+        waitForExpectations(timeout: 1)
+
+        // Double start should not cause double callbacks
+        XCTAssertEqual(callCount, 1, "Double start should not cause duplicate callbacks")
+        watcher.stop()
+    }
+
+    func testStopThenRestart() {
+        let url = tempFile()
+        let expectation = self.expectation(description: "callback after restart")
+
+        let watcher = FileWatcher(url: url) {
+            expectation.fulfill()
+        }
+        watcher.start()
+        watcher.stop()
+        XCTAssertFalse(watcher.isWatching)
+
+        watcher.start()
+        XCTAssertTrue(watcher.isWatching)
+
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
+            try! "# Restarted".write(to: url, atomically: false, encoding: .utf8)
+        }
+
+        waitForExpectations(timeout: 2)
+        watcher.stop()
+    }
+
+    func testCallbackOnMainThread() {
+        let url = tempFile()
+        let expectation = self.expectation(description: "callback on main")
+        var wasMainThread = false
+
+        let watcher = FileWatcher(url: url) {
+            wasMainThread = Thread.isMainThread
+            expectation.fulfill()
+        }
+        watcher.start()
+
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
+            try! "# Thread test".write(to: url, atomically: false, encoding: .utf8)
+        }
+
+        waitForExpectations(timeout: 2)
+        XCTAssertTrue(wasMainThread, "Callback should fire on main thread")
+        watcher.stop()
+    }
+
+    func testNonexistentFile() {
+        let url = tempDir.appendingPathComponent("nonexistent.md")
+        let watcher = FileWatcher(url: url) {}
+        watcher.start()
+        // Should not crash, just silently fail to monitor
+        XCTAssertTrue(watcher.isWatching, "isWatching should be true even if file doesn't exist")
+        watcher.stop()
+    }
 }

@@ -120,4 +120,89 @@ final class MarkdownRendererTests: XCTestCase {
         let html = MarkdownRenderer.render(markdown: "**hello**")
         XCTAssertTrue(html.contains("<strong>"), "Should render bold from string")
     }
+
+    // MARK: - renderBody (body-only HTML for innerHTML updates)
+
+    func testRenderBodyExcludesDoctype() {
+        let body = MarkdownRenderer.renderBody(markdown: "# Hello")
+        XCTAssertFalse(body.contains("<!DOCTYPE"), "renderBody should not include DOCTYPE")
+        XCTAssertFalse(body.contains("<html"), "renderBody should not include html tag")
+        XCTAssertFalse(body.contains("<head"), "renderBody should not include head tag")
+        XCTAssertFalse(body.contains("<style"), "renderBody should not include style tag")
+    }
+
+    func testRenderBodyContainsMarkup() {
+        let body = MarkdownRenderer.renderBody(markdown: "# Hello\n\nA **bold** word.")
+        XCTAssertTrue(body.contains("<h1>"), "renderBody should contain h1")
+        XCTAssertTrue(body.contains("<strong>"), "renderBody should contain strong")
+    }
+
+    func testRenderBodyMatchesRenderContent() {
+        let md = "# Test\n\nSome **content**."
+        let fullHTML = MarkdownRenderer.render(markdown: md)
+        let body = MarkdownRenderer.renderBody(markdown: md)
+        XCTAssertTrue(fullHTML.contains(body), "Full render should contain renderBody output")
+    }
+
+    func testRenderBodyEmpty() {
+        let body = MarkdownRenderer.renderBody(markdown: "")
+        XCTAssertFalse(body.contains("<h1>"), "Empty input should produce no headings")
+    }
+
+    // MARK: - UTF-8 handling (em-dashes, special chars)
+
+    func testUTF8InRender() {
+        let html = MarkdownRenderer.render(markdown: "Hello — world • bullet « guillemets »")
+        XCTAssertTrue(html.contains("—"), "Should preserve em-dash")
+        XCTAssertTrue(html.contains("•"), "Should preserve bullet")
+        XCTAssertTrue(html.contains("«"), "Should preserve left guillemet")
+    }
+
+    func testUTF8InRenderBody() {
+        let body = MarkdownRenderer.renderBody(markdown: "Héllo — wörld 中文")
+        XCTAssertTrue(body.contains("Héllo"), "Should preserve accented chars")
+        XCTAssertTrue(body.contains("—"), "Should preserve em-dash")
+        XCTAssertTrue(body.contains("中文"), "Should preserve CJK chars")
+    }
+
+    func testUTF8Base64RoundTrip() {
+        // Simulates the innerHTML update path: renderBody → base64 → atob+TextDecoder
+        let body = MarkdownRenderer.renderBody(markdown: "Test — em-dash • bullet")
+        let base64 = Data(body.utf8).base64EncodedString()
+        guard let decoded = Data(base64Encoded: base64) else {
+            XCTFail("Base64 decode failed")
+            return
+        }
+        let roundTripped = String(data: decoded, encoding: .utf8)
+        XCTAssertEqual(roundTripped, body, "Base64 round-trip should preserve UTF-8")
+    }
+
+    // MARK: - BundleAnchor CSS loading
+
+    func testCSSLoadsFromBundle() {
+        let html = MarkdownRenderer.render(markdown: "test")
+        XCTAssertTrue(html.contains("Charter"), "CSS should contain Charter font family")
+        XCTAssertTrue(html.contains("markdown-body"), "Should contain markdown-body class")
+    }
+
+    func testCSSNotEmpty() {
+        let html = MarkdownRenderer.render(markdown: "test")
+        // If CSS fails to load, the style tag would be nearly empty
+        XCTAssertTrue(html.contains("font-family:"), "CSS should contain font-family rule")
+        XCTAssertTrue(html.contains("line-height:"), "CSS should contain line-height rule")
+    }
+
+    // MARK: - Title from file path
+
+    func testTitleFromFilePath() throws {
+        let url = fixtureURL("basic")
+        let html = try MarkdownRenderer.render(fileAt: url)
+        XCTAssertTrue(html.contains("<title>basic</title>"), "Title should be filename without extension")
+    }
+
+    func testSpecialCharsFilePath() throws {
+        let url = fixtureURL("special-chars")
+        let html = try MarkdownRenderer.render(fileAt: url)
+        XCTAssertTrue(html.contains("<title>special-chars</title>"), "Title should handle hyphens")
+    }
 }
