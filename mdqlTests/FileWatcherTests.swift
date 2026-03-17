@@ -170,6 +170,32 @@ final class FileWatcherTests: XCTestCase {
         watcher.stop()
     }
 
+    func testRapidStopStartDoesNotLoseEvents() {
+        let url = tempFile()
+        let expectation = self.expectation(description: "callback after rapid stop/start")
+
+        let watcher = FileWatcher(url: url) {
+            expectation.fulfill()
+        }
+
+        // Rapid stop/start cycles — the old cancel handler must not close
+        // the new file descriptor (race condition fixed in df22604)
+        for _ in 0..<5 {
+            watcher.start()
+            watcher.stop()
+        }
+        watcher.start()
+        XCTAssertTrue(watcher.isWatching)
+
+        // Give the async cancel handlers from previous cycles time to fire
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.3) {
+            try! "# After rapid cycles".write(to: url, atomically: false, encoding: .utf8)
+        }
+
+        waitForExpectations(timeout: 2)
+        watcher.stop()
+    }
+
     func testCallbackOnMainThread() {
         let url = tempFile()
         let expectation = self.expectation(description: "callback on main")
