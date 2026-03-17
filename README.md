@@ -132,7 +132,7 @@ Bundle(for: BundleAnchor.self).url(forResource: "preview", withExtension: "css")
 
 ## Todo
 
-- **Incremental DOM updates** — Currently, every file change replaces the entire `.markdown-body` innerHTML. This works but is wasteful: a single-character edit re-renders and re-injects the full document HTML. Instead, diff the old and new rendered HTML and patch only the changed DOM nodes. This would reduce flicker on large documents, preserve any in-page state (e.g., text selection), and improve performance for files with hundreds of sections.
+- **Incremental DOM updates** — Currently, every file change replaces the entire `.markdown-body` innerHTML. This works but is wasteful: a single-character edit re-renders and re-injects the full document HTML. Instead, diff the old and new rendered HTML and patch only the changed DOM nodes. This would reduce flicker on large documents, preserve any in-page state (e.g., text selection), and improve performance for files with hundreds of sections. Changed elements should briefly highlight (e.g., a subtle flash or background pulse) so the user can instantly see what updated in the preview.
 
 ## Requirements
 
