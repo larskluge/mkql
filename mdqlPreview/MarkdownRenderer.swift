@@ -1,9 +1,23 @@
-import Foundation
+import Cocoa
 import Markdown
+import WebKit  // legacy WebView lives here
 
 private class BundleAnchor {}
 
 public struct MarkdownRenderer {
+
+    /// Canonical preview size — used by QuickLook extension and screenshot tool.
+    public static let previewSize = NSSize(width: 1060, height: 900)
+
+    /// Single source of truth for creating a configured preview WebView.
+    /// Both the QuickLook extension and the screenshot tool must use this
+    /// to guarantee identical rendering.
+    public static func createPreviewWebView(frame: NSRect? = nil) -> WebView {
+        let webView = WebView(frame: NSRect(origin: .zero, size: frame?.size ?? previewSize))
+        webView.autoresizingMask = [.width, .height]
+        webView.drawsBackground = false
+        return webView
+    }
 
     public static func render(fileAt url: URL) throws -> String {
         let markdown = try String(contentsOf: url, encoding: .utf8)

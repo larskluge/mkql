@@ -13,8 +13,6 @@ class PreviewController: NSViewController, QLPreviewingController, WebFrameLoadD
         NSPasteboard.general.setString(url.absoluteString, forType: .string)
     }
 
-    static let previewSize = NSSize(width: 1060, height: 900)
-
     override func loadView() {
         linkBridge = LinkBridge { [weak self] urlString in
             guard let self = self, let url = URL(string: urlString) else { return }
@@ -25,12 +23,10 @@ class PreviewController: NSViewController, QLPreviewingController, WebFrameLoadD
             )
         }
 
-        webView = WebView(frame: NSRect(origin: .zero, size: Self.previewSize))
-        webView.autoresizingMask = [.width, .height]
-        webView.drawsBackground = false
+        webView = MarkdownRenderer.createPreviewWebView()
         webView.frameLoadDelegate = self
         self.view = webView
-        preferredContentSize = Self.previewSize
+        preferredContentSize = MarkdownRenderer.previewSize
     }
 
     func preparePreviewOfFile(at url: URL, completionHandler handler: @escaping (Error?) -> Void) {
