@@ -49,13 +49,13 @@ macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 - Deployment target: macOS 12.0
 - App sandbox enabled on both host app and extension; extension has read-only file access
 - CSS is loaded from the bundle at runtime via `Bundle(for: BundleAnchor.self)`
-- **The entire project must use a single WebView technology — either `WebView` everywhere or `WKWebView` everywhere. Never mix them across targets.** Currently: `WKWebView` throughout (mdqlPreview extension, mdql-screenshot CLI, and any future targets).
+- **WKWebView only. Never use legacy `WebView`.** The entire project uses `WKWebView` exclusively (mdqlPreview extension, mdql-screenshot CLI, and any future targets). The deprecated `WebView` class must never be introduced — it was fully removed and replaced by `WKWebView` with the `com.apple.security.network.client` entitlement.
 
 ## Learnings
 
-- **WKWebView does NOT work in sandboxed QuickLook extensions.** Its GPU, Networking, and WebContent XPC subprocesses get blocked. Mach-lookup entitlement exceptions don't help — they're XPC services, not mach services.
+- **WKWebView requires `com.apple.security.network.client` entitlement in sandboxed QuickLook extensions.** Its out-of-process architecture (GPU, Networking, WebContent XPC subprocesses) needs this entitlement even for local HTML. Without it, the view renders blank. This was a known WebKit bug on macOS Big Sur (fixed in macOS 12 via WebKit Changeset 271895).
 - **NSAttributedString(html:) does NOT support modern CSS.** No CSS custom properties (`var()`), no `@media` queries, no advanced selectors. Produces visually broken output with our stylesheet.
-- **Legacy `WebView` (deprecated macOS 10.14) works in sandboxed extensions.** It renders HTML in-process without spawning XPC subprocesses, so the full `preview.css` with CSS variables and dark mode media queries works correctly.
+- **Never use legacy `WebView` (deprecated macOS 10.14).** It was previously used as a workaround for sandbox issues but has been fully removed. WKWebView with `network.client` entitlement is the correct and only approach for macOS 12+.
 - **`@main` on NSApplicationDelegate doesn't wire up the delegate.** Must use an explicit `@main enum Main` that creates `NSApplication.shared`, sets the delegate, and calls `app.run()`.
 - **JavaScript `atob()` produces Latin-1, not UTF-8.** Multi-byte UTF-8 characters (em-dashes, etc.) get mangled. Fix: `new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)))`.
 - **`Bundle(for: PreviewController.self)` fails cross-target.** When MarkdownRenderer is compiled into multiple targets, the class reference resolves to the wrong bundle. Fix: private `BundleAnchor` class in the same file as the bundle lookup.

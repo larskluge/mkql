@@ -108,14 +108,30 @@ public struct MarkdownRenderer {
         <title>\(escapedTitle)</title>
         <style>
         \(css)
+        @keyframes mdql-spin { to { transform: rotate(360deg); } }
+        #mdql-loading {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px; height: 24px;
+            border: 2px solid var(--border-color, #ddd);
+            border-top-color: var(--link-color, #4183c4);
+            border-radius: 50%;
+            animation: mdql-spin 0.6s linear infinite;
+        }
         </style>
         </head>
         <body>
-        <article class="markdown-body">
+        <div id="mdql-loading"></div>
+        <article class="markdown-body" style="display:none;">
         \(body)
         </article>
         <script>
         (function() {
+            var loader = document.getElementById('mdql-loading');
+            var article = document.querySelector('.markdown-body');
+            if (loader) loader.remove();
+            if (article) article.style.display = '';
+
             var toast = document.createElement('div');
             toast.id = 'mdql-toast';
             toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);' +
