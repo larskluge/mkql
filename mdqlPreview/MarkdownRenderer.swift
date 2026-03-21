@@ -98,6 +98,7 @@ public struct MarkdownRenderer {
 
     private static func wrapInHTMLDocument(body: String, title: String) -> String {
         let css = loadCSS()
+        let version = loadVersion()
         let escapedTitle = escapeHTML(title)
         return """
         <!DOCTYPE html>
@@ -121,6 +122,7 @@ public struct MarkdownRenderer {
         </style>
         </head>
         <body>
+        <div id="mdql-version" style="position:fixed;top:6px;right:12px;font-size:10px;opacity:0.3;font-family:monospace;z-index:9998;pointer-events:none;">\(escapeHTML(version))</div>
         <div id="mdql-loading"></div>
         <article class="markdown-body" style="display:none;">
         \(body)
@@ -179,6 +181,14 @@ public struct MarkdownRenderer {
             return ""
         }
         return css
+    }
+
+    static func loadVersion() -> String {
+        guard let url = Bundle(for: BundleAnchor.self).url(forResource: "version", withExtension: "txt"),
+              let version = try? String(contentsOf: url, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines) else {
+            return "dev"
+        }
+        return version
     }
 
     static func escapeHTML(_ string: String) -> String {

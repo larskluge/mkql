@@ -7,6 +7,10 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
     private var webView: WKWebView!
     private var fileWatcher: FileWatcher?
     private var fileURL: URL?
+    private var xpcConnection: NSXPCConnection?
+
+    /// Injectable URL opener. Default uses the XPC service to open in the default browser.
+    var openURL: (URL) -> Void = { _ in }
 
     override func loadView() {
         let config = WKWebViewConfiguration()
@@ -17,6 +21,19 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
         webView.navigationDelegate = self
         self.view = webView
         preferredContentSize = MarkdownRenderer.previewSize
+
+        // Set up XPC connection to unsandboxed URL opener
+        let connection = NSXPCConnection(serviceName: "com.mdql.app.open-url")
+        connection.remoteObjectInterface = NSXPCInterface(with: OpenURLProtocol.self)
+        connection.resume()
+        self.xpcConnection = connection
+
+        self.openURL = { [weak self] url in
+            guard let proxy = self?.xpcConnection?.remoteObjectProxyWithErrorHandler({ error in
+                NSLog("mdql XPC error: \(error)")
+            }) as? OpenURLProtocol else { return }
+            proxy.open(url) { _ in }
+        }
     }
 
     func preparePreviewOfFile(at url: URL, completionHandler handler: @escaping (Error?) -> Void) {
@@ -39,23 +56,37 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
         fileWatcher?.start()
     }
 
+    // MARK: - URL handling
+
+    /// Handles an openURL action. Exposed for testing.
+    func handleOpenURL(_ urlString: String, background: Bool) {
+        guard let url = URL(string: urlString), !urlString.isEmpty else { return }
+        openURL(url)
+    }
+
     // MARK: - WKScriptMessageHandler
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard let body = message.body as? [String: Any],
               let action = body["action"] as? String else { return }
 
-        if action == "openURL", let urlString = body["url"] as? String, let url = URL(string: urlString) {
+        if action == "openURL", let urlString = body["url"] as? String {
             let background = body["background"] as? Bool ?? false
-            let config = NSWorkspace.OpenConfiguration()
-            config.activates = !background
-            NSWorkspace.shared.open(url, configuration: config)
+            handleOpenURL(urlString, background: background)
         }
     }
 
     // MARK: - WKNavigationDelegate
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if navigationAction.navigationType == .linkActivated,
+           let url = navigationAction.request.url,
+           let scheme = url.scheme,
+           ["http", "https"].contains(scheme) {
+            handleOpenURL(url.absoluteString, background: false)
+            decisionHandler(.cancel)
+            return
+        }
         decisionHandler(.allow)
     }
 

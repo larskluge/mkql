@@ -23,13 +23,15 @@ qlmanage -p /path/to/file.md
 
 ## Architecture
 
-macOS QuickLook preview extension for Markdown files. Three Xcode targets:
+macOS QuickLook preview extension for Markdown files. Five Xcode targets:
 
 - **mdql** — Host app. Minimal AppDelegate (registration is handled by `scripts/install.sh` since the app is sandboxed). Post-build script calls `install.sh` to copy to `~/Applications/`.
 - **mdqlPreview** — QuickLook Preview Extension (.appex). View-based preview (`QLIsDataBasedPreview=false`) using `WKWebView` + `WKScriptMessageHandler` + FileWatcher for live updates in Finder. Registered for `net.daringfireball.markdown` UTI.
+- **mdql-open-url** — Unsandboxed XPC service (`com.apple.product-type.xpc-service`). Embedded in mdql.app at `Contents/XPCServices/`. Exposes `OpenURLProtocol` with a single `open(_:withReply:)` method so the sandboxed extension can open URLs in the default browser via `NSWorkspace`. No entitlements = no sandbox.
 - **mdqlTests** — Unit tests. Compiles mdqlPreview and mdql sources directly (not hosted tests) since app extensions can't be imported as modules by test bundles.
+- **mdql-screenshot** — CLI tool for taking PNG screenshots of rendered markdown. Uses WKWebView (unsandboxed).
 
-**Data flow:** Finder Space → `PreviewController.preparePreviewOfFile(at:)` → `MarkdownRenderer.render(fileAt:)` → `WKWebView.loadHTMLString()`. Link clicks are intercepted in JS and posted via `window.webkit.messageHandlers.mdql.postMessage()` to Swift's `WKScriptMessageHandler`. FileWatcher triggers innerHTML injection via `evaluateJavaScript()`.
+**Data flow:** Finder Space → `PreviewController.preparePreviewOfFile(at:)` → `MarkdownRenderer.render(fileAt:)` → `WKWebView.loadHTMLString()`. Link clicks are intercepted in JS and posted via `window.webkit.messageHandlers.mdql.postMessage()` to Swift's `WKScriptMessageHandler`, which delegates to the XPC service for browser opening. FileWatcher triggers innerHTML injection via `evaluateJavaScript()`.
 
 **Single external dependency:** `swift-markdown` (swiftlang/swift-markdown, branch: main) — provides GFM support (tables, strikethrough, task lists) via cmark-gfm under the hood. Added to mdqlPreview and mdqlTests targets.
 
@@ -39,7 +41,8 @@ macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 - `Makefile` — `make install` builds Release, calls `install.sh`, verifies no duplicates. `make clean` cleans build artifacts.
 - `mdqlPreview/MarkdownRenderer.swift` — Core rendering. `render()` for full HTML with CSS, `renderBody()` for body-only HTML (used by innerHTML updates). Uses `BundleAnchor` class for cross-target bundle resolution.
 - `mdqlPreview/Resources/preview.css` — Inkpad-derived design tokens. Uses CSS custom properties with `@media (prefers-color-scheme: dark)` for automatic dark mode. Key tokens: text `#3f3b3d`, bg `#f9f9f9`, links `#4183c4`.
-- `mdqlPreview/PreviewController.swift` — View-based QLPreviewingController with WKWebView + WKScriptMessageHandler for native JS↔Swift messaging + FileWatcher for live updates.
+- `mdqlPreview/PreviewController.swift` — View-based QLPreviewingController with WKWebView + WKScriptMessageHandler for native JS↔Swift messaging + FileWatcher for live updates. Opens URLs via XPC service.
+- `mdql-open-url/` — Unsandboxed XPC service: `OpenURLProtocol.swift` (shared @objc protocol), `OpenURLService.swift` (NSWorkspace.open), `OpenURLDelegate.swift` (NSXPCListenerDelegate), `main.swift`.
 - `mdql/FileWatcher.swift` — DispatchSource file monitor with rename/delete recovery and 100ms coalescing.
 - `mdqlTests/Fixtures/` — Test markdown files (basic, gfm, empty, special-chars).
 
@@ -64,3 +67,4 @@ macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 - **The app sandbox prevents AppDelegate from running lsregister/qlmanage.** All registration logic must live in `scripts/install.sh` (unsandboxed). The AppDelegate is a no-op.
 - **pluginkit only discovers extensions when the host app is launched.** `lsregister -f -R` alone is not enough — `install.sh` must `open` the app and then quit it to finalize registration.
 - **`codesign --force --deep` breaks extension identity.** When re-signing the host app after copying to ~/Applications, use `--sign -` without `--deep` to preserve the extension's original signature.
+- **Sandboxed QuickLook extensions cannot call `NSWorkspace.shared.open()`.** The extension sandbox profile is missing `(allow lsopen)`. Fix: unsandboxed XPC service embedded in `Contents/XPCServices/` that calls `NSWorkspace.shared.open()` on behalf of the extension via `NSXPCConnection(serviceName:)`.
