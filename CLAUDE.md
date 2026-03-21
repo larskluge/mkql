@@ -37,7 +37,7 @@ macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 
 - `scripts/install.sh` — Single source of truth for install + registration. Copies to ~/Applications, cleans stale lsregister/pluginkit entries, registers extension, launches app for pluginkit finalization.
 - `Makefile` — `make install` builds Release, calls `install.sh`, verifies no duplicates. `make clean` cleans build artifacts.
-- `mdqlPreview/MarkdownRenderer.swift` — Core rendering. `render()` for full HTML with CSS, `renderBody()` for body-only HTML (used by innerHTML updates). Uses `BundleAnchor` class for cross-target bundle resolution. Also owns `createPreviewWebView()` — legacy WebView factory used by mdql-screenshot only.
+- `mdqlPreview/MarkdownRenderer.swift` — Core rendering. `render()` for full HTML with CSS, `renderBody()` for body-only HTML (used by innerHTML updates). Uses `BundleAnchor` class for cross-target bundle resolution.
 - `mdqlPreview/Resources/preview.css` — Inkpad-derived design tokens. Uses CSS custom properties with `@media (prefers-color-scheme: dark)` for automatic dark mode. Key tokens: text `#3f3b3d`, bg `#f9f9f9`, links `#4183c4`.
 - `mdqlPreview/PreviewController.swift` — View-based QLPreviewingController with WKWebView + WKScriptMessageHandler for native JS↔Swift messaging + FileWatcher for live updates.
 - `mdql/FileWatcher.swift` — DispatchSource file monitor with rename/delete recovery and 100ms coalescing.
@@ -49,7 +49,7 @@ macOS QuickLook preview extension for Markdown files. Three Xcode targets:
 - Deployment target: macOS 12.0
 - App sandbox enabled on both host app and extension; extension has read-only file access
 - CSS is loaded from the bundle at runtime via `Bundle(for: BundleAnchor.self)`
-- **Screenshot tool must use legacy WebView, not WKWebView.** Both mdqlPreview and mdql-screenshot must use `MarkdownRenderer.createPreviewWebView()` to guarantee identical rendering. Never introduce WKWebView in the screenshot path.
+- **The entire project must use a single WebView technology — either `WebView` everywhere or `WKWebView` everywhere. Never mix them across targets.** Currently: `WKWebView` throughout (mdqlPreview extension, mdql-screenshot CLI, and any future targets).
 
 ## Learnings
 
