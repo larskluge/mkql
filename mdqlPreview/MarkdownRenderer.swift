@@ -131,6 +131,7 @@ public struct MarkdownRenderer {
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        #mdql-status.visible { display: block; }
         @media (prefers-color-scheme: dark) {
             #mdql-status { background: rgba(255,255,255,0.1); color: #aaa; }
         }
@@ -193,12 +194,12 @@ public struct MarkdownRenderer {
                 } else {
                     return;
                 }
-                statusBar.style.display = '';
+                statusBar.classList.add('visible');
             });
 
             document.addEventListener('mouseout', function(e) {
                 var el = findLink(e.target);
-                if (el) statusBar.style.display = 'none';
+                if (el && !el.contains(e.relatedTarget)) statusBar.classList.remove('visible');
             });
 
             document.addEventListener('click', function(e) {

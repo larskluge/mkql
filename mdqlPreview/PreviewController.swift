@@ -37,23 +37,12 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
     }
 
     func preparePreviewOfFile(at url: URL, completionHandler handler: @escaping (Error?) -> Void) {
-        fileURL = url
-
         do {
-            let html = try MarkdownRenderer.render(fileAt: url)
-            webView.loadHTMLString(html, baseURL: nil)
+            try loadMarkdownFile(at: url)
+            handler(nil)
         } catch {
             handler(error)
-            return
         }
-
-        handler(nil)
-
-        // Watch for file changes
-        fileWatcher = FileWatcher(url: url) { [weak self] in
-            self?.reloadContent()
-        }
-        fileWatcher?.start()
     }
 
     // MARK: - URL handling
@@ -66,35 +55,32 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
 
     /// Handles an openMarkdown action. Exposed for testing.
     func handleOpenMarkdown(_ urlString: String) {
-        guard let urlString = urlString.removingPercentEncoding ?? Optional(urlString),
-              let currentURL = self.fileURL,
-              !urlString.isEmpty else { return }
+        let decoded = urlString.removingPercentEncoding ?? urlString
+        guard let currentURL = self.fileURL,
+              !decoded.isEmpty else { return }
 
-        let resolved = URL(fileURLWithPath: urlString, relativeTo: currentURL.deletingLastPathComponent()).standardized
+        let resolved = URL(fileURLWithPath: decoded, relativeTo: currentURL.deletingLastPathComponent()).standardized
         let ext = resolved.pathExtension.lowercased()
         guard ext == "md" || ext == "markdown",
               FileManager.default.fileExists(atPath: resolved.path) else { return }
 
-        loadMarkdownFile(at: resolved)
+        try? loadMarkdownFile(at: resolved)
     }
 
     /// Loads and renders a markdown file, replacing the current preview.
-    func loadMarkdownFile(at url: URL) {
+    @discardableResult
+    func loadMarkdownFile(at url: URL) throws -> Bool {
         fileWatcher?.stop()
         fileURL = url
 
-        do {
-            let html = try MarkdownRenderer.render(fileAt: url)
-            webView.loadHTMLString(html, baseURL: nil)
-        } catch {
-            NSLog("mdql: failed to load \(url.path): \(error)")
-            return
-        }
+        let html = try MarkdownRenderer.render(fileAt: url)
+        webView.loadHTMLString(html, baseURL: nil)
 
         fileWatcher = FileWatcher(url: url) { [weak self] in
             self?.reloadContent()
         }
         fileWatcher?.start()
+        return true
     }
 
     // MARK: - WKScriptMessageHandler

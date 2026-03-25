@@ -136,6 +136,7 @@ final class PreviewControllerTests: XCTestCase {
         let html = MarkdownRenderer.render(markdown: "test", title: "t")
         XCTAssertTrue(html.contains("mouseover"), "HTML must contain mouseover handler")
         XCTAssertTrue(html.contains("mouseout"), "HTML must contain mouseout handler")
+        XCTAssertTrue(html.contains("classList"), "HTML must toggle status bar via CSS class")
     }
 
     // MARK: - openMarkdown handler
