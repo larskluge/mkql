@@ -23,16 +23,14 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
         self.view = webView
         preferredContentSize = MarkdownRenderer.previewSize
 
-        // Set up XPC connection to unsandboxed URL opener
+        // Set up XPC connection to unsandboxed service (URL opening + file reading)
         let connection = NSXPCConnection(serviceName: "com.mdql.app.open-url")
         connection.remoteObjectInterface = NSXPCInterface(with: OpenURLProtocol.self)
         connection.resume()
         self.xpcConnection = connection
 
         self.openURL = { [weak self] url in
-            guard let proxy = self?.xpcConnection?.remoteObjectProxyWithErrorHandler({ error in
-                NSLog("mdql XPC error: \(error)")
-            }) as? OpenURLProtocol else { return }
+            guard let proxy = self?.xpcProxy else { return }
             proxy.open(url) { _ in }
         }
     }
@@ -64,65 +62,61 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
         let ext = resolved.pathExtension.lowercased()
         guard ext == "md" || ext == "markdown" else { return }
 
-        // Read file via unsandboxed XPC service to bypass QL extension sandbox
-        guard let proxy = xpcConnection?.remoteObjectProxyWithErrorHandler({ _ in }) as? OpenURLProtocol else { return }
-        proxy.readFile(at: resolved.path) { [weak self] content, error in
-            guard let self = self, let markdown = content else { return }
-            DispatchQueue.main.async {
-                self.navigateToMarkdown(markdown, url: resolved)
-            }
+        readFileViaXPC(at: resolved) { [weak self] markdown in
+            guard let self = self else { return }
+            self.fileHistory.append(currentURL)
+            self.showMarkdown(markdown, url: resolved)
         }
     }
 
-    private func navigateToMarkdown(_ markdown: String, url: URL) {
-        if let current = fileURL {
-            fileHistory.append(current)
+    // MARK: - Navigation
+
+    /// Loads and renders a markdown file directly (used for the initial file the sandbox grants access to).
+    @discardableResult
+    func loadMarkdownFile(at url: URL) throws -> Bool {
+        let html = try MarkdownRenderer.render(fileAt: url)
+        fileWatcher?.stop()
+        fileURL = url
+        webView.loadHTMLString(html, baseURL: nil)
+        startWatching(url)
+        return true
+    }
+
+    private func goBack() {
+        guard let previousURL = fileHistory.popLast() else { return }
+        readFileViaXPC(at: previousURL) { [weak self] markdown in
+            self?.showMarkdown(markdown, url: previousURL)
         }
+    }
+
+    private func showMarkdown(_ markdown: String, url: URL) {
         fileWatcher?.stop()
         fileURL = url
         let title = url.deletingPathExtension().lastPathComponent
         let html = MarkdownRenderer.render(markdown: markdown, title: title, showBackButton: !fileHistory.isEmpty)
         webView.loadHTMLString(html, baseURL: nil)
+        startWatching(url)
+    }
+
+    private func startWatching(_ url: URL) {
         fileWatcher = FileWatcher(url: url) { [weak self] in
             self?.reloadContent()
         }
         fileWatcher?.start()
     }
 
-    private func goBack() {
-        guard let previousURL = fileHistory.popLast() else { return }
-        guard let proxy = xpcConnection?.remoteObjectProxyWithErrorHandler({ _ in }) as? OpenURLProtocol else { return }
-        proxy.readFile(at: previousURL.path) { [weak self] content, error in
-            guard let self = self, let markdown = content else { return }
-            DispatchQueue.main.async {
-                self.fileWatcher?.stop()
-                self.fileURL = previousURL
-                let title = previousURL.deletingPathExtension().lastPathComponent
-                let html = MarkdownRenderer.render(markdown: markdown, title: title, showBackButton: !self.fileHistory.isEmpty)
-                self.webView.loadHTMLString(html, baseURL: nil)
-                self.fileWatcher = FileWatcher(url: previousURL) { [weak self] in
-                    self?.reloadContent()
-                }
-                self.fileWatcher?.start()
-            }
-        }
+    // MARK: - XPC helpers
+
+    private var xpcProxy: OpenURLProtocol? {
+        xpcConnection?.remoteObjectProxyWithErrorHandler({ _ in }) as? OpenURLProtocol
     }
 
-    /// Loads and renders a markdown file, replacing the current preview.
-    /// Used for the initial file (which the sandbox grants access to).
-    @discardableResult
-    func loadMarkdownFile(at url: URL) throws -> Bool {
-        fileWatcher?.stop()
-        fileURL = url
-
-        let html = try MarkdownRenderer.render(fileAt: url)
-        webView.loadHTMLString(html, baseURL: nil)
-
-        fileWatcher = FileWatcher(url: url) { [weak self] in
-            self?.reloadContent()
+    private func readFileViaXPC(at url: URL, completion: @escaping (String) -> Void) {
+        guard let proxy = xpcProxy else { return }
+        proxy.readFile(at: url.path) { content, _ in
+            guard let content = content else { return }
+            DispatchQueue.main.async { completion(content) }
         }
-        fileWatcher?.start()
-        return true
     }
 
     // MARK: - WKScriptMessageHandler
@@ -164,20 +158,16 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
         decisionHandler(.allow)
     }
 
+    // MARK: - Live reload
+
     private func reloadContent() {
         guard let url = fileURL else { return }
-
-        // Use XPC to read file (sandbox may block direct reads for navigated files)
-        guard let proxy = xpcConnection?.remoteObjectProxyWithErrorHandler({ _ in }) as? OpenURLProtocol else { return }
-        proxy.readFile(at: url.path) { [weak self] content, error in
-            guard let self = self, let markdown = content else { return }
-            DispatchQueue.main.async {
-                let bodyHTML = MarkdownRenderer.renderBody(markdown: markdown)
-                let base64 = Data(bodyHTML.utf8).base64EncodedString()
-                self.webView.evaluateJavaScript(
-                    "document.querySelector('.markdown-body').innerHTML = new TextDecoder().decode(Uint8Array.from(atob('\(base64)'), c => c.charCodeAt(0)))"
-                )
-            }
+        readFileViaXPC(at: url) { [weak self] markdown in
+            let bodyHTML = MarkdownRenderer.renderBody(markdown: markdown)
+            let base64 = Data(bodyHTML.utf8).base64EncodedString()
+            self?.webView.evaluateJavaScript(
+                "document.querySelector('.markdown-body').innerHTML = new TextDecoder().decode(Uint8Array.from(atob('\(base64)'), c => c.charCodeAt(0)))"
+            )
         }
     }
 }

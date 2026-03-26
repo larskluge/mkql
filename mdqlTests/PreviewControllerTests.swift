@@ -136,10 +136,6 @@ final class PreviewControllerTests: XCTestCase {
         | [12 — Jobs](12-jobs.md) | Draft |
         """
         let html = MarkdownRenderer.renderBody(markdown: table)
-        // Print for debugging
-        print("=== RENDERED TABLE HTML ===")
-        print(html)
-        print("=== END ===")
         XCTAssertTrue(html.contains("href=\"04-source.md\""), "Link 04 must have correct href")
         XCTAssertTrue(html.contains("href=\"08-wa.md\""), "Link 08 must have correct href")
         XCTAssertTrue(html.contains("href=\"12-jobs.md\""), "Link 12 must have correct href")
