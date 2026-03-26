@@ -2,5 +2,6 @@ xcuserdata/
 project.xcworkspace/
 DerivedData/
 .build/
+build/
 default.profraw
 .claude/
