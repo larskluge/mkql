@@ -126,6 +126,36 @@ final class MarkdownRendererTests: XCTestCase {
         XCTAssertFalse(html.contains("<pattern>"), "Must not emit raw <pattern> tag")
     }
 
+    func testIssue11ReproViaRender() throws {
+        // Exercise the public render() path (used by the extension), not just renderBody.
+        let url = fixtureURL("code-with-html")
+        let md = try String(contentsOf: url, encoding: .utf8)
+        let html = MarkdownRenderer.render(markdown: md)
+
+        let preCount = html.components(separatedBy: "<pre><code").count - 1
+        XCTAssertEqual(preCount, 2, "Expected exactly two code blocks; got \(preCount).")
+        XCTAssertTrue(html.contains("&lt;table&gt;"), "render() must escape angle brackets in code blocks")
+        XCTAssertTrue(html.contains("Paragraph between blocks."), "Paragraph between code blocks must be preserved")
+    }
+
+    func testPlainHeadingUnchanged() {
+        // Regression guard: ordinary headings must not be mangled by the heading pass.
+        let html = MarkdownRenderer.renderBody(markdown: "## Regular Heading")
+        XCTAssertTrue(html.contains("<h2>Regular Heading</h2>"), "Plain heading must render verbatim; got: \(html)")
+    }
+
+    func testHeadingWithInlineCodeNoDoubleEscape() {
+        // Defensive guard on the two-pass escape order. If swift-markdown ever emits
+        // <code>...</code> inside <h1>, the code pass escapes first and the heading
+        // pass must not re-escape the &entities;. Current behavior (plainText) has no
+        // nested <code>, so this also asserts that invariant: any "&" in the output
+        // appears as "&amp;" — never "&amp;amp;" or "&amp;lt;".
+        let html = MarkdownRenderer.renderBody(markdown: "## Using `<div>`")
+        XCTAssertTrue(html.contains("&lt;div&gt;"), "Angle brackets must be escaped once; got: \(html)")
+        XCTAssertFalse(html.contains("&amp;lt;"), "Must not double-escape; got: \(html)")
+        XCTAssertFalse(html.contains("&amp;amp;"), "Must not double-escape; got: \(html)")
+    }
+
     // MARK: - HTML Document Structure
 
     func testHTMLDocumentStructure() {

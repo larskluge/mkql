@@ -58,6 +58,7 @@ public struct MarkdownRenderer {
 
     private static func escapeAttribute(_ s: String) -> String {
         s.replacingOccurrences(of: "&", with: "&amp;")
+         .replacingOccurrences(of: "<", with: "&lt;")
          .replacingOccurrences(of: "\"", with: "&quot;")
     }
 
@@ -66,9 +67,9 @@ public struct MarkdownRenderer {
         pattern: String,
         with transform: ([String]) -> String
     ) -> String {
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
-            return input
-        }
+        // Patterns here are hard-coded literals; a compile failure is a programmer error,
+        // not a runtime condition to recover from silently.
+        let regex = try! NSRegularExpression(pattern: pattern, options: [])
         let nsInput = input as NSString
         let matches = regex.matches(in: input, options: [], range: NSRange(location: 0, length: nsInput.length))
         var out = ""
