@@ -1,4 +1,4 @@
-.PHONY: install clean
+.PHONY: install test clean
 
 BUNDLE_ID := com.mdql.app.preview
 LSREGISTER := /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister
@@ -37,6 +37,9 @@ install:
 			echo "OK: No duplicate registrations"; \
 		fi
 	@echo "Done. Test with: qlmanage -p README.md"
+
+test:
+	xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' test
 
 clean:
 	xcodebuild -project mdql.xcodeproj -scheme mdql -configuration Release clean

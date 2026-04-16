@@ -18,11 +18,6 @@ A macOS Quick Look extension for previewing Markdown files. Press Space on any `
 - macOS 12.0+
 - Xcode 15.0+
 
-## Todo
-
-- [ ] **Faithful Inkpad styling** — Audit the current CSS against the original Inkpad design and bring any missing or divergent styles closer to the source. Some elements (blockquotes, nested lists, code blocks) may need refinement to fully match Inkpad's look and feel.
-- [ ] **Incremental DOM updates** — Currently, every file change replaces the entire `.markdown-body` innerHTML. This works but is wasteful: a single-character edit re-renders and re-injects the full document HTML. Instead, diff the old and new rendered HTML and patch only the changed DOM nodes. This would reduce flicker on large documents, preserve any in-page state (e.g., text selection), and improve performance for files with hundreds of sections. Changed elements should briefly highlight (e.g., a subtle flash or background pulse) so the user can instantly see what updated in the preview.
-
 ## Install
 
 ```bash
@@ -34,7 +29,7 @@ This builds a Release binary, copies it to `~/Applications/`, cleans up all stal
 ## Test
 
 ```bash
-xcodebuild -project mdql.xcodeproj -scheme mdql -destination 'platform=macOS' test
+make test
 ```
 
 ## How Live Updates Work
