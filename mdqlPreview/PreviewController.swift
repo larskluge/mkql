@@ -13,6 +13,12 @@ class PreviewController: NSViewController, QLPreviewingController, WKNavigationD
     /// Injectable URL opener. Default uses the XPC service to open in the default browser.
     var openURL: (URL) -> Void = { _ in }
 
+    deinit {
+        fileWatcher?.stop()
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "mdql")
+        xpcConnection?.invalidate()
+    }
+
     override func loadView() {
         let config = WKWebViewConfiguration()
         config.userContentController.add(self, name: "mdql")
